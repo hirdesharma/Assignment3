@@ -1,9 +1,13 @@
 package org.example;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import org.example.commands.AddNodeCommand;
+import org.example.commands.CommandInterface;
+import org.example.services.UserManager;
+
 public class Main {
   public static void main(String[] args) {
-
+    CommandInterface addNodeCommand = new AddNodeCommand();
+    UserManager userManager = new UserManager(addNodeCommand);
+    userManager.startManager();
   }
 }

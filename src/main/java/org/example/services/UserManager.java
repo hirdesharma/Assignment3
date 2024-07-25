@@ -11,9 +11,16 @@ public class UserManager {
   Map<String, ArrayList<String>> parentChildDependencies;
   Map<Integer,CommandInterface>commandMap;
 
-  public UserManager() {
+  CommandInterface addNodeCommand;
+
+  public UserManager(CommandInterface addNodeCommand) {
     childParentDependencies = new HashMap<>();
     parentChildDependencies = new HashMap<>();
+    this.addNodeCommand=addNodeCommand;
     commandMap.put(1,new AddNodeCommand());
+  }
+
+  public void startManager(){
+
   }
 }
