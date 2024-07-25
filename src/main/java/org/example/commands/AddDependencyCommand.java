@@ -1,28 +1,22 @@
 package org.example.commands;
 
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Scanner;
+import org.example.model.Node;
 
 public class AddDependencyCommand implements CommandInterface{
   @Override
-  public void execute(Map<String, ArrayList<String>> childParentDependencies,
-                      Map<String, ArrayList<String>> parentChildDependencies) {
+  public void execute(Map<String, Node>nodeDependencies) {
     Scanner scanner = new Scanner(System.in);
     System.out.println("give the parent and child node id");
     String parentId = scanner.nextLine();
     String childId = scanner.nextLine();
 
-    if(childParentDependencies.containsKey(childId)){
-      ArrayList<String> parentForChildId = childParentDependencies.get(childId);
-      parentForChildId.remove(parentId);
-      parentForChildId.add(parentId);
-      childParentDependencies.put(childId,parentForChildId);
-
-      ArrayList<String> childForParentId = parentChildDependencies.get(parentId);
-      childForParentId.remove(childId);
-      childForParentId.add(childId);
-      parentChildDependencies.put(parentId,childForParentId);
+    if(nodeDependencies.containsKey(parentId)){
+      nodeDependencies.get(parentId).getNodeChildren().remove(childId);
+      nodeDependencies.get(parentId).getNodeChildren().add(childId);
+      nodeDependencies.get(childId).getNodeParents().remove(parentId);
+      nodeDependencies.get(childId).getNodeParents().add(parentId);
     }
   }
 }

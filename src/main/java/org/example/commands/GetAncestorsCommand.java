@@ -5,11 +5,11 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Scanner;
+import org.example.model.Node;
 
 public class GetAncestorsCommand implements CommandInterface {
   @Override
-  public void execute(Map<String, ArrayList<String>> childParentDependencies,
-                      Map<String, ArrayList<String>> parentChildDependencies) {
+  public void execute(Map<String, Node> nodeDependencies) {
     Scanner scanner = new Scanner(System.in);
     System.out.println("Enter the nodeId whose Ancestors nodes are needed");
     String nodeId = scanner.nextLine();
@@ -23,7 +23,7 @@ public class GetAncestorsCommand implements CommandInterface {
     while (nodes.peek() != null) {
       String currentNode = nodes.poll();
       ancestors.add(currentNode);
-      ArrayList<String> currNodeParents = childParentDependencies.get(currentNode);
+      ArrayList<String> currNodeParents =nodeDependencies.get(currentNode).getNodeParents();
       for (int i = 0; i < currNodeParents.size(); ++i) {
         nodes.add(currNodeParents.get(i));
       }

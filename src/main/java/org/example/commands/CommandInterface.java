@@ -1,9 +1,7 @@
 package org.example.commands;
-
-import java.util.ArrayList;
 import java.util.Map;
+import org.example.model.Node;
 
 public interface CommandInterface {
-  void execute(Map<String, ArrayList<String>> childParentDependencies,
-               Map<String, ArrayList<String>> parentChildDependencies);
+  void execute(Map<String, Node>nodeDependencies);
 }

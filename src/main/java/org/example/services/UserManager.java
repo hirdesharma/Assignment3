@@ -1,6 +1,5 @@
 package org.example.services;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.example.commands.AddDependencyCommand;
@@ -12,18 +11,17 @@ import org.example.commands.GetAncestorsCommand;
 import org.example.commands.GetChildrenCommand;
 import org.example.commands.GetDescendantsCommand;
 import org.example.commands.GetParentsCommand;
+import org.example.model.Node;
 
 public class UserManager {
-  Map<String, ArrayList<String>> childParentDependencies;
-  Map<String, ArrayList<String>> parentChildDependencies;
   Map<Integer, CommandInterface> commandMap;
+  Map<String, Node> nodeDependencies;
 
   UserInputService userInputService;
 
   public UserManager(UserInputService userInputService) {
-    childParentDependencies = new HashMap<>();
-    parentChildDependencies = new HashMap<>();
-    this.userInputService=userInputService;
+    nodeDependencies = new HashMap<>();
+    this.userInputService = userInputService;
     commandMap.put(1, new AddDependencyCommand());
     commandMap.put(2, new AddNodeCommand());
     commandMap.put(3, new DeleteDependencyCommand());
@@ -37,6 +35,6 @@ public class UserManager {
   public void startManager() {
     int userChoice = userInputService.getUserInput();
     CommandInterface commandInterface = commandMap.get(userChoice);
-    commandInterface.execute(childParentDependencies,parentChildDependencies);
+    commandInterface.execute(nodeDependencies);
   }
 }

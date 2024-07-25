@@ -5,11 +5,11 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Scanner;
+import org.example.model.Node;
 
 public class GetDescendantsCommand implements CommandInterface{
   @Override
-  public void execute(Map<String, ArrayList<String>> childParentDependencies,
-                      Map<String, ArrayList<String>> parentChildDependencies) {
+  public void execute(Map<String, Node> nodeDependencies) {
     Scanner scanner = new Scanner(System.in);
     String nodeId = scanner.nextLine();
     System.out.println("Enter the nodeId whose Descendants nodes are needed");
@@ -23,7 +23,7 @@ public class GetDescendantsCommand implements CommandInterface{
     while (nodes.peek() != null) {
       String currentNode = nodes.poll();
       descendants.add(currentNode);
-      ArrayList<String> currNodeChild = parentChildDependencies.get(currentNode);
+      ArrayList<String> currNodeChild = nodeDependencies.get(currentNode).getNodeChildren();
       for (int i = 0; i < currNodeChild.size(); ++i) {
         nodes.add(currNodeChild.get(i));
       }
