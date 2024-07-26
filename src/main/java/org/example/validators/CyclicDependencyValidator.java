@@ -1,27 +1,18 @@
-package org.example.commands;
+package org.example.validators;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Scanner;
+import org.example.exceptions.InvalidArgument;
 import org.example.model.Node;
 
-public class GetDescendantsCommand implements CommandInterface {
-
-  @Override
-  public void execute(Map<String, Node> nodeDependencies) {
-    Scanner scanner = new Scanner(System.in);
-
-    System.out.println("Enter the nodeId whose Descendants nodes are needed");
-    String nodeId = scanner.nextLine();
-    System.out.println("The Descendants nodes for " + nodeId + " are");
-
-    // Initialize a queue to perform breadth-first search (BFS) and a list to store descendant nodes
+public class CyclicDependencyValidator {
+  public void checkForCycle(String parent, String child, Map<String, Node> nodeDependencies) {
     Queue<String> nodes = new LinkedList<>();
     ArrayList<String> descendants = new ArrayList<>();
 
-    nodes.add(nodeId);
+    nodes.add(child);
 
     // Perform BFS to find all descendant nodes
     while (nodes.peek() != null) {
@@ -37,10 +28,9 @@ public class GetDescendantsCommand implements CommandInterface {
       }
     }
 
-    // Print all descendant nodes
-    for (int i = 1; i < descendants.size(); ++i) {
-      System.out.print(descendants.get(i) + " ");
+    if (descendants.contains(parent)) {
+      throw new InvalidArgument("There will be a cycle if these parent child dependency "
+          + "establishes");
     }
-    System.out.println();
   }
 }

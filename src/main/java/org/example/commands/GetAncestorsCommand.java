@@ -32,7 +32,7 @@ public class GetAncestorsCommand implements CommandInterface {
       ArrayList<String> currNodeParents = nodeDependencies.get(currentNode).getNodeParents();
 
       // Add all parent nodes to the queue to continue the BFS
-      for (int i = 0; i < currNodeParents.size(); ++i) {
+      for (int i = 1; i < currNodeParents.size(); ++i) {
         nodes.add(currNodeParents.get(i));
       }
     }
