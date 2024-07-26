@@ -16,6 +16,11 @@ public class DeleteDependencyCommand implements CommandInterface {
     String parentId = scanner.nextLine();
     String childId = scanner.nextLine();
 
+    if (parentId.equals("") || childId.equals("") || childId.equals(null) || parentId.equals(
+        null)) {
+      throw new InvalidArgument("Empty inputs are not allowed");
+    }
+
     // Check if both parent and child nodes exist in the map
     if (nodeDependencies.containsKey(parentId) && nodeDependencies.containsKey(childId)) {
 
@@ -26,7 +31,7 @@ public class DeleteDependencyCommand implements CommandInterface {
       nodeDependencies.get(parentId).setNodeChildren(children);
 
       // Update the child node: remove the parent id
-      ArrayList<String> parent =  nodeDependencies.get(childId).getNodeParents();
+      ArrayList<String> parent = nodeDependencies.get(childId).getNodeParents();
       parent.remove(parentId);
       nodeDependencies.get(childId).setNodeParents(parent);
 

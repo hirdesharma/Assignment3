@@ -17,6 +17,10 @@ public class Node {
     this.nodeId = nodeId;
   }
 
+  public String getNodeId() {
+    return nodeId;
+  }
+
   public void setNodeName(String nodeName) {
     this.nodeName = nodeName;
   }

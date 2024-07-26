@@ -11,8 +11,8 @@ public class AddNodeCommand implements CommandInterface {
     System.out.println("Enter the node key");
     Scanner scanner = new Scanner(System.in);
     String newNode = scanner.nextLine();
-    if(nodeDependencies.containsKey(newNode)){
-      throw new InvalidArgument("Node with id "+newNode+" already Exist");
+    if(newNode.equals("") || nodeDependencies.containsKey(newNode)){
+      throw new InvalidArgument("Node with id "+newNode+" already Exist or newNode is empty");
     }
     nodeDependencies.put(newNode,new Node());
     nodeDependencies.get(newNode).setNodeId(newNode);

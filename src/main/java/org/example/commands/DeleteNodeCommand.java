@@ -16,6 +16,9 @@ public class DeleteNodeCommand implements CommandInterface {
 
     String nodeId = scanner.nextLine();
 
+    if (nodeId.equals("") || nodeId.equals(null)) {
+      throw new InvalidArgument("nodeId shouldn't be null or empty");
+    }
     // Check if the node exists in the map
     if (nodeDependencies.containsKey(nodeId)) {
       // Retrieve the lists of parent and child nodes
@@ -35,6 +38,8 @@ public class DeleteNodeCommand implements CommandInterface {
         children.remove(nodeId);
         nodeDependencies.get(nodeChildren.get(i)).setNodeChildren(children);
       }
+
+      nodeDependencies.remove(nodeId);
       return;
     }
 
