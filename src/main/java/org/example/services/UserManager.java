@@ -11,16 +11,18 @@ import org.example.commands.GetAncestorsCommand;
 import org.example.commands.GetChildrenCommand;
 import org.example.commands.GetDescendantsCommand;
 import org.example.commands.GetParentsCommand;
+import org.example.exceptions.InvalidArgument;
 import org.example.model.Node;
 
 public class UserManager {
   Map<Integer, CommandInterface> commandMap;
   Map<String, Node> nodeDependencies;
 
-  UserInputService userInputService;
+  UserInputServiceInterface userInputService;
 
-  public UserManager(UserInputService userInputService) {
+  public UserManager(UserInputServiceInterface userInputService) {
     nodeDependencies = new HashMap<>();
+    commandMap = new HashMap<>();
     this.userInputService = userInputService;
     commandMap.put(1, new AddDependencyCommand());
     commandMap.put(2, new AddNodeCommand());
@@ -33,8 +35,15 @@ public class UserManager {
   }
 
   public void startManager() {
-    int userChoice = userInputService.getUserInput();
-    CommandInterface commandInterface = commandMap.get(userChoice);
-    commandInterface.execute(nodeDependencies);
+    boolean terminate = false;
+    while (!terminate) {
+      try {
+        int userChoice = userInputService.getUserInput();
+        CommandInterface commandInterface = commandMap.get(userChoice);
+        commandInterface.execute(nodeDependencies);
+      } catch (Exception e) {
+        throw new InvalidArgument("Invalid Command : " + e.getMessage());
+      }
+    }
   }
 }

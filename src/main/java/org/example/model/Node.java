@@ -17,10 +17,6 @@ public class Node {
     this.nodeId = nodeId;
   }
 
-  public String getNodeId() {
-    return nodeId;
-  }
-
   public void setNodeName(String nodeName) {
     this.nodeName = nodeName;
   }
@@ -45,16 +41,16 @@ public class Node {
     return nodeParents;
   }
 
-  public void setNodeParents(String nodeId) {
-    this.nodeParents.add(nodeId);
+  public void setNodeParents(final ArrayList<String> nodeParents) {
+    this.nodeParents = nodeParents;
   }
 
   public ArrayList<String> getNodeChildren() {
     return nodeChildren;
   }
 
-  public void setNodeChildren(String nodeId) {
-    this.nodeChildren.add(nodeId);
+  public void setNodeChildren(final ArrayList<String> nodeChildren) {
+    this.nodeChildren = nodeChildren;
   }
 
 
