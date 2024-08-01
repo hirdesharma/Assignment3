@@ -8,9 +8,9 @@ import org.example.model.Node;
 import org.example.services.ConsoleInputServiceInterface;
 
 public class DeleteNodeCommand implements CommandInterface {
-  private final ConsoleInputServiceInterface consoleInputService;
+  ConsoleInputServiceInterface consoleInputService;
 
-  public DeleteNodeCommand(final ConsoleInputServiceInterface consoleInputService) {
+  public DeleteNodeCommand(ConsoleInputServiceInterface consoleInputService) {
     this.consoleInputService = consoleInputService;
   }
 
@@ -18,23 +18,27 @@ public class DeleteNodeCommand implements CommandInterface {
   public void execute(final Map<String, Node> nodeDependencies) {
     System.out.println("Enter the node id you want to delete with all its dependencies");
 
-    final String nodeId = consoleInputService.inputNodeId();
+    String nodeId = consoleInputService.inputNodeId();
 
-    validateNodeId(nodeId);
+    if (validateNodeId(nodeId)) {
+      return;
+    }
     deleteNodeWithDependencies(nodeDependencies, nodeId);
   }
 
-  private void validateNodeId(final String nodeId) {
+  private boolean validateNodeId(final String nodeId) {
     if (nodeId == null || nodeId.isEmpty()) {
-      throw new InvalidArgument("nodeId shouldn't be null or empty");
+      System.out.println("nodeId shouldn't be null or empty");
+      return true;
     }
+    return false;
   }
 
   private void deleteNodeWithDependencies(final Map<String, Node> nodeDependencies,
                                           final String nodeId) {
     if (nodeDependencies.containsKey(nodeId)) {
-      final List<String> nodeParents = nodeDependencies.get(nodeId).getNodeParents();
-      final List<String> nodeChildren = nodeDependencies.get(nodeId).getNodeChildren();
+      List<String> nodeParents = nodeDependencies.get(nodeId).getNodeParents();
+      List<String> nodeChildren = nodeDependencies.get(nodeId).getNodeChildren();
 
       removeNodeDependencyFromChildren(nodeDependencies, nodeId, nodeChildren);
       removeNodeDependencyFromParent(nodeDependencies, nodeId, nodeParents);
@@ -48,17 +52,18 @@ public class DeleteNodeCommand implements CommandInterface {
   private void removeNodeDependencyFromChildren(final Map<String, Node> nodeDependencies,
                                                 final String nodeId,
                                                 final List<String> nodeChildren) {
-    for (final String childId : nodeChildren) {
-      final ArrayList<String> parents = nodeDependencies.get(childId).getNodeParents();
+    for (String childId : nodeChildren) {
+      ArrayList<String> parents = nodeDependencies.get(childId).getNodeParents();
       parents.remove(nodeId);
       nodeDependencies.get(childId).setNodeParents(parents);
     }
   }
 
   private void removeNodeDependencyFromParent(final Map<String, Node> nodeDependencies,
-                                              final String nodeId, final List<String> nodeParents) {
-    for (final String parentId : nodeParents) {
-      final ArrayList<String> children = nodeDependencies.get(parentId).getNodeChildren();
+                                              final String nodeId,
+                                              List<String> nodeParents) {
+    for (String parentId : nodeParents) {
+      ArrayList<String> children = nodeDependencies.get(parentId).getNodeChildren();
       children.remove(nodeId);
       nodeDependencies.get(parentId).setNodeChildren(children);
     }
