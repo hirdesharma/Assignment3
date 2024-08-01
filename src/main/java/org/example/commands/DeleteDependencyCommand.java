@@ -2,14 +2,13 @@ package org.example.commands;
 
 import java.util.ArrayList;
 import java.util.Map;
-import org.example.exceptions.InvalidArgument;
 import org.example.model.Node;
 import org.example.services.ConsoleInputServiceInterface;
 
 public class DeleteDependencyCommand implements CommandInterface {
-  private final ConsoleInputServiceInterface consoleInputService;
+  ConsoleInputServiceInterface consoleInputService;
 
-  public DeleteDependencyCommand(final ConsoleInputServiceInterface consoleInputService) {
+  public DeleteDependencyCommand(ConsoleInputServiceInterface consoleInputService) {
     this.consoleInputService = consoleInputService;
   }
 
@@ -17,40 +16,47 @@ public class DeleteDependencyCommand implements CommandInterface {
   public void execute(final Map<String, Node> nodeDependencies) {
     System.out.println("Get parent id and child id");
 
-    final String parentId = consoleInputService.inputNodeId();
-    final String childId = consoleInputService.inputNodeId();
+    String parentId = consoleInputService.inputNodeId();
+    String childId = consoleInputService.inputNodeId();
 
-    validateInput(parentId, childId);
-    validateNodesExistence(nodeDependencies, parentId, childId);
+    if (validateInput(parentId, childId) || validateNodesExistence(nodeDependencies, parentId,
+        childId)) {
+      return;
+    }
 
     updateParentNode(nodeDependencies, parentId, childId);
     updateChildNode(nodeDependencies, parentId, childId);
   }
 
-  private void validateInput(final String parentId, final String childId) {
+  private boolean validateInput(final String parentId, final String childId) {
     if (parentId == null || childId == null || parentId.isEmpty() || childId.isEmpty()) {
-      throw new InvalidArgument("Empty inputs are not allowed");
+      System.out.println("Empty inputs are not allowed");
+      return true;
     }
+    return false;
   }
 
-  private void validateNodesExistence(final Map<String, Node> nodeDependencies,
-                                      final String parentId, final String childId) {
+  private boolean validateNodesExistence(final Map<String, Node> nodeDependencies,
+                                         final String parentId,
+                                         final String childId) {
     if (!nodeDependencies.containsKey(parentId) || !nodeDependencies.containsKey(childId)) {
-      throw new InvalidArgument(
+      System.out.println(
           "There is no node with parentId " + parentId + " or " + "childId " + childId);
+      return true;
     }
+    return false;
   }
 
   private void updateParentNode(final Map<String, Node> nodeDependencies, final String parentId,
-                                final String childId) {
-    final ArrayList<String> children = nodeDependencies.get(parentId).getNodeChildren();
+                                String childId) {
+    ArrayList<String> children = nodeDependencies.get(parentId).getNodeChildren();
     children.remove(childId);
     nodeDependencies.get(parentId).setNodeChildren(children);
   }
 
   private void updateChildNode(final Map<String, Node> nodeDependencies, final String parentId,
-                               final String childId) {
-    final ArrayList<String> parents = nodeDependencies.get(childId).getNodeParents();
+                               String childId) {
+    ArrayList<String> parents = nodeDependencies.get(childId).getNodeParents();
     parents.remove(parentId);
     nodeDependencies.get(childId).setNodeParents(parents);
   }

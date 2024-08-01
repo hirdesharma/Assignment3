@@ -1,10 +1,14 @@
 package org.example.services;
 
-public class UserInputService implements UserInputServiceInterface {
-  private final ConsoleInputServiceInterface consoleInputService;
+import java.util.Scanner;
 
-  public UserInputService(final ConsoleInputServiceInterface consoleInputService) {
+public class UserInputService implements UserInputServiceInterface {
+  ConsoleInputServiceInterface consoleInputService;
+  Scanner scanner;
+
+  public UserInputService(ConsoleInputServiceInterface consoleInputService) {
     this.consoleInputService = consoleInputService;
+    scanner = new Scanner(System.in);
   }
 
   @Override
@@ -19,6 +23,6 @@ public class UserInputService implements UserInputServiceInterface {
     System.out.println("7 = Get the descendants of a node.");
     System.out.println("8 = Get the immediate parents of a node.");
 
-    return consoleInputService.inputUserAction();
+    return scanner.nextInt();
   }
 }

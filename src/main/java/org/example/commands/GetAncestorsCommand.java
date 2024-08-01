@@ -9,26 +9,30 @@ import org.example.model.Node;
 import org.example.services.ConsoleInputServiceInterface;
 
 public class GetAncestorsCommand implements CommandInterface {
-  private final ConsoleInputServiceInterface consoleInputService;
+  ConsoleInputServiceInterface consoleInputService;
 
-  public GetAncestorsCommand(final ConsoleInputServiceInterface consoleInputService) {
+  public GetAncestorsCommand(ConsoleInputServiceInterface consoleInputService) {
     this.consoleInputService = consoleInputService;
   }
 
   @Override
   public void execute(final Map<String, Node> nodeDependencies) {
     System.out.println("Enter the nodeId whose Ancestor nodes are needed");
-    final String nodeId = consoleInputService.inputNodeId();
+    String nodeId = consoleInputService.inputNodeId();
 
-    validateNodeId(nodeId);
-    final List<String> ancestors = findAncestors(nodeDependencies, nodeId);
+    if (validateNodeId(nodeId, nodeDependencies)) {
+      return;
+    }
+    List<String> ancestors = findAncestors(nodeDependencies, nodeId);
     printAncestors(ancestors);
   }
 
-  private void validateNodeId(final String nodeId) {
-    if (nodeId == null || nodeId.isEmpty()) {
-      throw new IllegalArgumentException("nodeId shouldn't be null or empty");
+  private boolean validateNodeId(final String nodeId, final Map<String, Node> nodeDependencies) {
+    if (nodeId == null || nodeId.isEmpty() || !nodeDependencies.containsKey(nodeId)) {
+      System.out.println("there is no node with id : " + nodeId);
+      return true;
     }
+    return false;
   }
 
   private List<String> findAncestors(final Map<String, Node> nodeDependencies,
@@ -39,12 +43,12 @@ public class GetAncestorsCommand implements CommandInterface {
     nodes.add(nodeId);
 
     while (!nodes.isEmpty()) {
-      final String currentNode = nodes.poll();
+      String currentNode = nodes.poll();
       ancestors.add(currentNode);
 
-      final List<String> currNodeParents = nodeDependencies.get(currentNode).getNodeParents();
+      List<String> currNodeParents = nodeDependencies.get(currentNode).getNodeParents();
 
-      for (final String parent : currNodeParents) {
+      for (String parent : currNodeParents) {
         nodes.add(parent);
       }
     }
@@ -54,8 +58,8 @@ public class GetAncestorsCommand implements CommandInterface {
 
   private void printAncestors(final List<String> ancestors) {
     System.out.println("The Ancestor nodes are: ");
-    for (final String ancestor : ancestors) {
-      System.out.print(ancestor + " ");
+    for (int i = 1; i < ancestors.size(); ++i) {
+      System.out.print(ancestors.get(i) + " ");
     }
     System.out.println();
   }
