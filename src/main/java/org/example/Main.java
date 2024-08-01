@@ -10,8 +10,7 @@ import org.example.validators.CyclicDependencyValidator;
 
 public class Main {
   public static void main(String[] args) {
-    try {
-      Scanner scanner = new Scanner(System.in);
+    try (Scanner scanner = new Scanner(System.in)) { // Ensure Scanner is closed properly
       ConsoleInputServiceInterface consoleInputService = new ConsoleInputService(scanner);
       CyclicDependencyValidator cyclicDependencyValidator = new CyclicDependencyValidator();
       UserInputServiceInterface userInputService = new UserInputService(consoleInputService);
@@ -19,7 +18,7 @@ public class Main {
           consoleInputService);
       userManager.startManager();
     } catch (Exception e) {
-      System.out.println("Error : " + e.getMessage());
+      System.out.println("Error: " + e.getMessage());
     }
   }
 }

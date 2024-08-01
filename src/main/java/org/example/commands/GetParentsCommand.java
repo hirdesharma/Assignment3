@@ -2,43 +2,40 @@ package org.example.commands;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import org.example.exceptions.InvalidArgument;
 import org.example.model.Node;
 import org.example.services.ConsoleInputServiceInterface;
 
 public class GetParentsCommand implements CommandInterface {
-  ConsoleInputServiceInterface consoleInputService;
+  private final ConsoleInputServiceInterface consoleInputService;
 
-  public GetParentsCommand(ConsoleInputServiceInterface consoleInputService) {
+  public GetParentsCommand(final ConsoleInputServiceInterface consoleInputService) {
     this.consoleInputService = consoleInputService;
   }
 
   @Override
-  public void execute(Map<String, Node> nodeDependencies) {
-    Scanner scanner = new Scanner(System.in);
-
+  public void execute(final Map<String, Node> nodeDependencies) {
     System.out.println("Enter the nodeId whose parent nodes are needed");
-    String nodeId = consoleInputService.inputNodeId();
+    final String nodeId = consoleInputService.inputNodeId();
 
     validateNodeId(nodeId, nodeDependencies);
-    List<String> parents = getParents(nodeDependencies, nodeId);
+    final List<String> parents = getParents(nodeDependencies, nodeId);
     printParents(nodeId, parents);
   }
 
-  private void validateNodeId(String nodeId, Map<String, Node> nodeDependencies) {
+  private void validateNodeId(final String nodeId, final Map<String, Node> nodeDependencies) {
     if (nodeId == null || nodeId.isEmpty() || !nodeDependencies.containsKey(nodeId)) {
       throw new InvalidArgument("There is no node with id: " + nodeId);
     }
   }
 
-  private List<String> getParents(Map<String, Node> nodeDependencies, String nodeId) {
+  private List<String> getParents(final Map<String, Node> nodeDependencies, final String nodeId) {
     return nodeDependencies.get(nodeId).getNodeParents();
   }
 
-  private void printParents(String nodeId, List<String> parents) {
+  private void printParents(final String nodeId, final List<String> parents) {
     System.out.println("The parent nodes for " + nodeId + " are:");
-    for (String parent : parents) {
+    for (final String parent : parents) {
       System.out.print(parent + " ");
     }
     System.out.println();

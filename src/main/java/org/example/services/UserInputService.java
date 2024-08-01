@@ -1,9 +1,9 @@
 package org.example.services;
 
 public class UserInputService implements UserInputServiceInterface {
-  ConsoleInputServiceInterface consoleInputService;
+  private final ConsoleInputServiceInterface consoleInputService;
 
-  public UserInputService(ConsoleInputServiceInterface consoleInputService) {
+  public UserInputService(final ConsoleInputServiceInterface consoleInputService) {
     this.consoleInputService = consoleInputService;
   }
 

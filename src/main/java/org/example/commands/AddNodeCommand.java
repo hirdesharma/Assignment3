@@ -8,14 +8,14 @@ import org.example.services.ConsoleInputServiceInterface;
 public class AddNodeCommand implements CommandInterface {
   private final ConsoleInputServiceInterface consoleInputService;
 
-  public AddNodeCommand(ConsoleInputServiceInterface consoleInputService) {
+  public AddNodeCommand(final ConsoleInputServiceInterface consoleInputService) {
     this.consoleInputService = consoleInputService;
   }
 
   @Override
-  public void execute(Map<String, Node> nodeDependencies) {
+  public void execute(final Map<String, Node> nodeDependencies) {
     System.out.println("Enter the node key");
-    String nodeId = consoleInputService.inputNodeId();
+    final String nodeId = consoleInputService.inputNodeId();
 
     validateInput(nodeId, nodeDependencies);
 
@@ -23,9 +23,9 @@ public class AddNodeCommand implements CommandInterface {
     nodeDependencies.get(nodeId).setNodeId(nodeId);
   }
 
-  private void validateInput(String nodeId, Map<String, Node> nodeDependencies) {
+  private void validateInput(final String nodeId, final Map<String, Node> nodeDependencies) {
     if (nodeId == null || nodeId.isEmpty() || nodeDependencies.containsKey(nodeId)) {
-      throw new InvalidArgument("Node with id " + nodeId + " already Exist or nodeId is empty");
+      throw new InvalidArgument("Node with id " + nodeId + " already exists or nodeId is empty");
     }
   }
 }

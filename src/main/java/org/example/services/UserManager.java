@@ -16,40 +16,45 @@ import org.example.model.Node;
 import org.example.validators.CyclicDependencyValidator;
 
 public class UserManager {
-  CyclicDependencyValidator cyclicDependencyValidator;
-  ConsoleInputServiceInterface consoleInputService;
-  Map<Integer, CommandInterface> commandMap;
-  Map<String, Node> nodeDependencies;
+  private final CyclicDependencyValidator cyclicDependencyValidator;
+  private final ConsoleInputServiceInterface consoleInputService;
+  private final Map<Integer, CommandInterface> commandMap;
+  private final Map<String, Node> nodeDependencies;
 
-  UserInputServiceInterface userInputService;
+  private final UserInputServiceInterface userInputService;
 
-  public UserManager(UserInputServiceInterface userInputService,
-                     CyclicDependencyValidator cyclicDependencyValidator,
-                     ConsoleInputServiceInterface consoleInputService) {
-    nodeDependencies = new HashMap<>();
-    commandMap = new HashMap<>();
+  public UserManager(final UserInputServiceInterface userInputService,
+                     final CyclicDependencyValidator cyclicDependencyValidator,
+                     final ConsoleInputServiceInterface consoleInputService) {
+    this.nodeDependencies = new HashMap<>();
+    this.commandMap = new HashMap<>();
     this.cyclicDependencyValidator = cyclicDependencyValidator;
     this.userInputService = userInputService;
     this.consoleInputService = consoleInputService;
-    commandMap.put(1, new AddDependencyCommand(cyclicDependencyValidator, consoleInputService));
-    commandMap.put(2, new AddNodeCommand(consoleInputService));
-    commandMap.put(3, new DeleteDependencyCommand(consoleInputService));
-    commandMap.put(4, new DeleteNodeCommand(consoleInputService));
-    commandMap.put(5, new GetAncestorsCommand(consoleInputService));
-    commandMap.put(6, new GetChildrenCommand(consoleInputService));
-    commandMap.put(7, new GetDescendantsCommand(consoleInputService));
-    commandMap.put(8, new GetParentsCommand(consoleInputService));
+    this.commandMap.put(1,
+        new AddDependencyCommand(cyclicDependencyValidator, consoleInputService));
+    this.commandMap.put(2, new AddNodeCommand(consoleInputService));
+    this.commandMap.put(3, new DeleteDependencyCommand(consoleInputService));
+    this.commandMap.put(4, new DeleteNodeCommand(consoleInputService));
+    this.commandMap.put(5, new GetAncestorsCommand(consoleInputService));
+    this.commandMap.put(6, new GetChildrenCommand(consoleInputService));
+    this.commandMap.put(7, new GetDescendantsCommand(consoleInputService));
+    this.commandMap.put(8, new GetParentsCommand(consoleInputService));
   }
 
   public void startManager() {
     boolean terminate = false;
     while (!terminate) {
       try {
-        int userChoice = userInputService.getUserInput();
-        CommandInterface commandInterface = commandMap.get(userChoice);
-        commandInterface.execute(nodeDependencies);
+        final int userChoice = userInputService.getUserInput();
+        final CommandInterface commandInterface = commandMap.get(userChoice);
+        if (commandInterface != null) {
+          commandInterface.execute(nodeDependencies);
+        } else {
+          throw new InvalidArgument("Command not found for choice: " + userChoice);
+        }
       } catch (Exception e) {
-        throw new InvalidArgument("Invalid Command : " + e.getMessage());
+        System.err.println("Invalid Command: " + e.getMessage());
       }
     }
   }

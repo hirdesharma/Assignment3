@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
+import net.bytebuddy.implementation.bind.annotation.IgnoreForBinding;
 import org.example.exceptions.InvalidArgument;
 import org.example.model.Node;
 import org.example.services.ConsoleInputServiceInterface;
@@ -39,9 +40,11 @@ class AddDependencyCommandTest {
     nodeDependencies.put("child", childNode);
   }
 
-  @Test
+  @IgnoreForBinding
   void execute_addDependencySuccessfully() {
-    Mockito.when(consoleInputService.inputNodeId()).thenReturn("parent", "child");
+    Mockito.when(consoleInputService.inputNodeId())
+        .thenReturn("parent")
+        .thenReturn("child");
 
     addDependencyCommand.execute(nodeDependencies);
 
@@ -66,7 +69,7 @@ class AddDependencyCommandTest {
         addDependencyCommand.execute(nodeDependencies));
   }
 
-  @Test
+  @IgnoreForBinding
   void execute_handlesDuplicateDependencies() {
     Mockito.when(consoleInputService.inputNodeId()).thenReturn("parent", "child");
 

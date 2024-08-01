@@ -5,47 +5,46 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Scanner;
 import org.example.model.Node;
 import org.example.services.ConsoleInputServiceInterface;
 
 public class GetAncestorsCommand implements CommandInterface {
-  ConsoleInputServiceInterface consoleInputService;
+  private final ConsoleInputServiceInterface consoleInputService;
 
-  public GetAncestorsCommand(ConsoleInputServiceInterface consoleInputService) {
+  public GetAncestorsCommand(final ConsoleInputServiceInterface consoleInputService) {
     this.consoleInputService = consoleInputService;
   }
 
   @Override
-  public void execute(Map<String, Node> nodeDependencies) {
-    Scanner scanner = new Scanner(System.in);
+  public void execute(final Map<String, Node> nodeDependencies) {
     System.out.println("Enter the nodeId whose Ancestor nodes are needed");
-    String nodeId = consoleInputService.inputNodeId();
+    final String nodeId = consoleInputService.inputNodeId();
 
     validateNodeId(nodeId);
-    List<String> ancestors = findAncestors(nodeDependencies, nodeId);
+    final List<String> ancestors = findAncestors(nodeDependencies, nodeId);
     printAncestors(ancestors);
   }
 
-  private void validateNodeId(String nodeId) {
+  private void validateNodeId(final String nodeId) {
     if (nodeId == null || nodeId.isEmpty()) {
       throw new IllegalArgumentException("nodeId shouldn't be null or empty");
     }
   }
 
-  private List<String> findAncestors(Map<String, Node> nodeDependencies, String nodeId) {
-    Queue<String> nodes = new LinkedList<>();
-    List<String> ancestors = new ArrayList<>();
+  private List<String> findAncestors(final Map<String, Node> nodeDependencies,
+                                     final String nodeId) {
+    final Queue<String> nodes = new LinkedList<>();
+    final List<String> ancestors = new ArrayList<>();
 
     nodes.add(nodeId);
 
     while (!nodes.isEmpty()) {
-      String currentNode = nodes.poll();
+      final String currentNode = nodes.poll();
       ancestors.add(currentNode);
 
-      List<String> currNodeParents = nodeDependencies.get(currentNode).getNodeParents();
+      final List<String> currNodeParents = nodeDependencies.get(currentNode).getNodeParents();
 
-      for (String parent : currNodeParents) {
+      for (final String parent : currNodeParents) {
         nodes.add(parent);
       }
     }
@@ -53,9 +52,9 @@ public class GetAncestorsCommand implements CommandInterface {
     return ancestors;
   }
 
-  private void printAncestors(List<String> ancestors) {
+  private void printAncestors(final List<String> ancestors) {
     System.out.println("The Ancestor nodes are: ");
-    for (String ancestor : ancestors) {
+    for (final String ancestor : ancestors) {
       System.out.print(ancestor + " ");
     }
     System.out.println();
