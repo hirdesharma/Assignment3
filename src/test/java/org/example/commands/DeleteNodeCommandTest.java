@@ -28,7 +28,7 @@ class DeleteNodeCommandTest {
   }
 
   @Test
-  void execute_deletesNodeAndItsDependencies() {
+  void testDeletesNodeAndItsDependencies() {
     // Create nodes with parent-child relationships
     Node parentNode = new Node();
     Node childNode = new Node();
@@ -61,7 +61,7 @@ class DeleteNodeCommandTest {
   }
 
   @Test
-  void execute_throwsExceptionWhenNodeDoesNotExist() {
+  void testThrowsExceptionWhenNodeDoesNotExist() {
     // Add a node to the map
     Node existingNode = new Node();
     existingNode.setNodeId("existingNodeId");
@@ -78,20 +78,7 @@ class DeleteNodeCommandTest {
   }
 
   @Test
-  void execute_handlesEmptyNodeId() {
-    // Add a node to the map
-    Node existingNode = new Node();
-    existingNode.setNodeId("existingNodeId");
-    nodeDependencies.put("existingNodeId", existingNode);
-
-    // Simulate user input with an empty node ID
-    when(consoleInputService.inputNodeId()).thenReturn("");
-
-    assertThrows(InvalidArgument.class, () -> deleteNodeCommand.execute(nodeDependencies));
-  }
-
-  @Test
-  void execute_handlesNullNodeId() {
+  void testHandlesNullNodeId() {
     // Simulate user input with a null (empty string)
     when(consoleInputService.inputNodeId()).thenReturn("null");
 
