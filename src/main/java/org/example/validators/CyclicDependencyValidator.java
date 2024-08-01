@@ -15,7 +15,7 @@ public class CyclicDependencyValidator {
     nodes.add(child);
 
     // Perform BFS to find all descendant nodes
-    while (nodes.peek() != null) {
+    while (!nodes.isEmpty()) {
       String currentNode = nodes.poll(); // Get the next node from the queue
       descendants.add(currentNode); // Add the current node to the list of descendants
 
@@ -23,9 +23,7 @@ public class CyclicDependencyValidator {
       ArrayList<String> currNodeChild = nodeDependencies.get(currentNode).getNodeChildren();
 
       // Add all child nodes to the queue to continue the BFS
-      for (int i = 0; i < currNodeChild.size(); ++i) {
-        nodes.add(currNodeChild.get(i));
-      }
+      nodes.addAll(currNodeChild);
     }
 
     if (descendants.contains(parent)) {

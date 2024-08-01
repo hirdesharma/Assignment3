@@ -6,44 +6,61 @@ import java.util.Map;
 import java.util.Scanner;
 import org.example.exceptions.InvalidArgument;
 import org.example.model.Node;
+import org.example.services.ConsoleInputServiceInterface;
 
 public class DeleteNodeCommand implements CommandInterface {
+  ConsoleInputServiceInterface consoleInputService;
+
+  public DeleteNodeCommand(ConsoleInputServiceInterface consoleInputService) {
+    this.consoleInputService = consoleInputService;
+  }
 
   @Override
   public void execute(Map<String, Node> nodeDependencies) {
     Scanner scanner = new Scanner(System.in);
     System.out.println("Enter the node id you want to delete with all its dependencies");
 
-    String nodeId = scanner.nextLine();
+    String nodeId = consoleInputService.inputNodeId();
 
-    if (nodeId.equals("") || nodeId.equals(null)) {
+    validateNodeId(nodeId);
+    deleteNodeWithDependencies(nodeDependencies, nodeId);
+  }
+
+  private void validateNodeId(String nodeId) {
+    if (nodeId == null || nodeId.isEmpty()) {
       throw new InvalidArgument("nodeId shouldn't be null or empty");
     }
-    // Check if the node exists in the map
+  }
+
+  private void deleteNodeWithDependencies(Map<String, Node> nodeDependencies, String nodeId) {
     if (nodeDependencies.containsKey(nodeId)) {
-      // Retrieve the lists of parent and child nodes
       List<String> nodeParents = nodeDependencies.get(nodeId).getNodeParents();
       List<String> nodeChildren = nodeDependencies.get(nodeId).getNodeChildren();
 
-      // Remove the node ID from each of its children's parent lists
-      for (int i = 0; i < nodeChildren.size(); ++i) {
-        ArrayList<String> parents = nodeDependencies.get(nodeChildren.get(i)).getNodeParents();
-        parents.remove(nodeId);
-        nodeDependencies.get(nodeChildren.get(i)).setNodeParents(parents);
-      }
-      // Remove the node ID from each of its parents' children lists
-      for (int i = 0; i < nodeParents.size(); ++i) {
-        ArrayList<String> children =
-            nodeDependencies.get(nodeParents.get(i)).getNodeChildren();
-        children.remove(nodeId);
-        nodeDependencies.get(nodeChildren.get(i)).setNodeChildren(children);
-      }
+      removeNodeDependencyFromChildren(nodeDependencies, nodeId, nodeChildren);
+      removeNodeDependencyFromParent(nodeDependencies, nodeId, nodeParents);
 
       nodeDependencies.remove(nodeId);
-      return;
+    } else {
+      throw new InvalidArgument("There is no node with id " + nodeId);
     }
+  }
 
-    // If the node does not exist, throw an InvalidArgument exception
-    throw new InvalidArgument("There is no node with id " + nodeId);
+  private void removeNodeDependencyFromChildren(Map<String, Node> nodeDependencies, String nodeId,
+                                                List<String> nodeChildren) {
+    for (String childId : nodeChildren) {
+      ArrayList<String> parents = nodeDependencies.get(childId).getNodeParents();
+      parents.remove(nodeId);
+      nodeDependencies.get(childId).setNodeParents(parents);
+    }
+  }
+
+  private void removeNodeDependencyFromParent(Map<String, Node> nodeDependencies, String nodeId,
+                                              List<String> nodeParents) {
+    for (String parentId : nodeParents) {
+      ArrayList<String> children = nodeDependencies.get(parentId).getNodeChildren();
+      children.remove(nodeId);
+      nodeDependencies.get(parentId).setNodeChildren(children);
+    }
   }
 }

@@ -8,18 +8,25 @@ import java.util.HashMap;
 import java.util.Map;
 import org.example.exceptions.InvalidArgument;
 import org.example.model.Node;
+import org.example.services.ConsoleInputServiceInterface;
+import org.example.validators.CyclicDependencyValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 class AddDependencyCommandTest {
 
   private Map<String, Node> nodeDependencies;
   private CommandInterface addDependencyCommand;
+  private CyclicDependencyValidator cyclicDependencyValidator;
+  private ConsoleInputServiceInterface consoleInputService;
 
   @BeforeEach
   void setUp() {
     nodeDependencies = new HashMap<>();
-    addDependencyCommand = new AddDependencyCommand();
+    cyclicDependencyValidator = new CyclicDependencyValidator();
+    consoleInputService = Mockito.mock(ConsoleInputServiceInterface.class);
+    addDependencyCommand = new AddDependencyCommand(cyclicDependencyValidator, consoleInputService);
 
     // Setting up test data
     Node parentNode = new Node();
@@ -34,8 +41,7 @@ class AddDependencyCommandTest {
 
   @Test
   void execute_addDependencySuccessfully() {
-    // Simulate user input
-    System.setIn(new java.io.ByteArrayInputStream("parent\nchild\n".getBytes()));
+    Mockito.when(consoleInputService.inputNodeId()).thenReturn("parent", "child");
 
     addDependencyCommand.execute(nodeDependencies);
 
@@ -45,8 +51,7 @@ class AddDependencyCommandTest {
 
   @Test
   void execute_throwsExceptionWhenParentNotFound() {
-    // Simulate user input
-    System.setIn(new java.io.ByteArrayInputStream("nonexistent\nchild\n".getBytes()));
+    Mockito.when(consoleInputService.inputNodeId()).thenReturn("nonexistent", "child");
 
     assertThrows(InvalidArgument.class, () ->
         addDependencyCommand.execute(nodeDependencies)
@@ -55,8 +60,7 @@ class AddDependencyCommandTest {
 
   @Test
   void execute_throwsExceptionWhenChildNotFound() {
-    // Simulate user input
-    System.setIn(new java.io.ByteArrayInputStream("parent\nnonexistent\n".getBytes()));
+    Mockito.when(consoleInputService.inputNodeId()).thenReturn("parent", "nonexistent");
 
     assertThrows(InvalidArgument.class, () ->
         addDependencyCommand.execute(nodeDependencies));
@@ -64,10 +68,11 @@ class AddDependencyCommandTest {
 
   @Test
   void execute_handlesDuplicateDependencies() {
-    // Simulate user input
-    System.setIn(new java.io.ByteArrayInputStream("parent\nchild\n".getBytes()));
+    Mockito.when(consoleInputService.inputNodeId()).thenReturn("parent", "child");
+
     addDependencyCommand.execute(nodeDependencies); // First addition
-    System.setIn(new java.io.ByteArrayInputStream("parent\nchild\n".getBytes()));
+
+    Mockito.when(consoleInputService.inputNodeId()).thenReturn("parent", "child");
     addDependencyCommand.execute(nodeDependencies); // Second addition (duplicate)
 
     assertEquals(1, nodeDependencies.get("parent").getNodeChildren().size());

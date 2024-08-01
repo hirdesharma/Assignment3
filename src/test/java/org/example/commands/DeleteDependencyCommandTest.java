@@ -3,23 +3,28 @@ package org.example.commands;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
 import java.util.Map;
 import org.example.exceptions.InvalidArgument;
 import org.example.model.Node;
+import org.example.services.ConsoleInputServiceInterface;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 class DeleteDependencyCommandTest {
 
   private Map<String, Node> nodeDependencies;
   private DeleteDependencyCommand deleteDependencyCommand;
+  private ConsoleInputServiceInterface consoleInputService;
 
   @BeforeEach
   void setUp() {
     nodeDependencies = new HashMap<>();
-    deleteDependencyCommand = new DeleteDependencyCommand();
+    consoleInputService = Mockito.mock(ConsoleInputServiceInterface.class);
+    deleteDependencyCommand = new DeleteDependencyCommand(consoleInputService);
   }
 
   @Test
@@ -37,7 +42,7 @@ class DeleteDependencyCommandTest {
     nodeDependencies.put("childId", childNode);
 
     // Simulate user input
-    System.setIn(new java.io.ByteArrayInputStream("parentId\nchildId\n".getBytes()));
+    when(consoleInputService.inputNodeId()).thenReturn("parentId", "childId");
 
     deleteDependencyCommand.execute(nodeDependencies);
 
@@ -53,8 +58,7 @@ class DeleteDependencyCommandTest {
     nodeDependencies.put("existingNodeId", existingNode);
 
     // Simulate user input with a non-existent node
-    System.setIn(
-        new java.io.ByteArrayInputStream("existingNodeId\nnonExistentNodeId\n".getBytes()));
+    when(consoleInputService.inputNodeId()).thenReturn("existingNodeId", "nonExistentNodeId");
 
     InvalidArgument exception = assertThrows(InvalidArgument.class, () -> {
       deleteDependencyCommand.execute(nodeDependencies);
@@ -67,9 +71,10 @@ class DeleteDependencyCommandTest {
   @Test
   void execute_handlesNullInput() {
     // Simulate user input with null (empty strings)
-    System.setIn(new java.io.ByteArrayInputStream("\n\n".getBytes()));
+    when(consoleInputService.inputNodeId()).thenReturn("", "");
 
-    assertThrows(InvalidArgument.class, () ->
-        deleteDependencyCommand.execute(nodeDependencies));
+    assertThrows(InvalidArgument.class, () -> {
+      deleteDependencyCommand.execute(nodeDependencies);
+    });
   }
 }

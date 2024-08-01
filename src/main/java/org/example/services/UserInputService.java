@@ -1,10 +1,14 @@
 package org.example.services;
 
-import java.util.Scanner;
-
 public class UserInputService implements UserInputServiceInterface {
+  ConsoleInputServiceInterface consoleInputService;
+
+  public UserInputService(ConsoleInputServiceInterface consoleInputService) {
+    this.consoleInputService = consoleInputService;
+  }
+
+  @Override
   public int getUserInput() {
-    Scanner scanner = new Scanner(System.in);
     System.out.println("Enter the operation Number you want to perform");
     System.out.println("1 = Add a new dependency to a tree.");
     System.out.println("2 = Add a new node to tree.");
@@ -15,6 +19,6 @@ public class UserInputService implements UserInputServiceInterface {
     System.out.println("7 = Get the descendants of a node.");
     System.out.println("8 = Get the immediate parents of a node.");
 
-    return scanner.nextInt();
+    return consoleInputService.inputUserAction();
   }
 }

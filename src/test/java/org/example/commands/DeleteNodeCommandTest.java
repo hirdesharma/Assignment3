@@ -3,24 +3,28 @@ package org.example.commands;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.example.exceptions.InvalidArgument;
 import org.example.model.Node;
+import org.example.services.ConsoleInputServiceInterface;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 class DeleteNodeCommandTest {
 
   private Map<String, Node> nodeDependencies;
   private DeleteNodeCommand deleteNodeCommand;
+  private ConsoleInputServiceInterface consoleInputService;
 
   @BeforeEach
   void setUp() {
     nodeDependencies = new HashMap<>();
-    deleteNodeCommand = new DeleteNodeCommand();
+    consoleInputService = Mockito.mock(ConsoleInputServiceInterface.class);
+    deleteNodeCommand = new DeleteNodeCommand(consoleInputService);
   }
 
   @Test
@@ -34,21 +38,11 @@ class DeleteNodeCommandTest {
     nodeToDelete.setNodeId("nodeId");
 
     // Set up parent-child relationships
-    ArrayList<String> newChild = parentNode.getNodeChildren();
-    newChild.add("nodeId");
-    parentNode.setNodeChildren(newChild);
+    parentNode.getNodeChildren().add("nodeId");
+    nodeToDelete.getNodeParents().add("parentId");
 
-    ArrayList<String> newNodeParent = nodeToDelete.getNodeParents();
-    newNodeParent.add("parentId");
-    nodeToDelete.setNodeParents(newNodeParent);
-
-    ArrayList<String> newParent = parentNode.getNodeParents();
-    newParent.add("nodeId");
-    parentNode.setNodeParents(newParent);
-
-    ArrayList<String> newNodeChild = nodeToDelete.getNodeChildren();
-    newNodeChild.add("childId");
-    nodeToDelete.setNodeChildren(newNodeChild);
+    childNode.getNodeParents().add("nodeId");
+    nodeToDelete.getNodeChildren().add("childId");
 
     // Add nodes to the map
     nodeDependencies.put("parentId", parentNode);
@@ -56,7 +50,7 @@ class DeleteNodeCommandTest {
     nodeDependencies.put("nodeId", nodeToDelete);
 
     // Simulate user input
-    System.setIn(new java.io.ByteArrayInputStream("nodeId\n".getBytes()));
+    when(consoleInputService.inputNodeId()).thenReturn("nodeId");
 
     deleteNodeCommand.execute(nodeDependencies);
 
@@ -74,7 +68,7 @@ class DeleteNodeCommandTest {
     nodeDependencies.put("existingNodeId", existingNode);
 
     // Simulate user input with a non-existent node
-    System.setIn(new java.io.ByteArrayInputStream("nonExistentNodeId\n".getBytes()));
+    when(consoleInputService.inputNodeId()).thenReturn("nonExistentNodeId");
 
     InvalidArgument exception = assertThrows(InvalidArgument.class, () -> {
       deleteNodeCommand.execute(nodeDependencies);
@@ -91,16 +85,15 @@ class DeleteNodeCommandTest {
     nodeDependencies.put("existingNodeId", existingNode);
 
     // Simulate user input with an empty node ID
-    System.setIn(new java.io.ByteArrayInputStream("\n".getBytes()));
+    when(consoleInputService.inputNodeId()).thenReturn("");
 
-    assertThrows(InvalidArgument.class, () ->
-        deleteNodeCommand.execute(nodeDependencies));
+    assertThrows(InvalidArgument.class, () -> deleteNodeCommand.execute(nodeDependencies));
   }
 
   @Test
   void execute_handlesNullNodeId() {
-    // Simulate user input with null (empty string)
-    System.setIn(new java.io.ByteArrayInputStream("null\n".getBytes()));
+    // Simulate user input with a null (empty string)
+    when(consoleInputService.inputNodeId()).thenReturn("null");
 
     InvalidArgument exception = assertThrows(InvalidArgument.class, () -> {
       deleteNodeCommand.execute(nodeDependencies);

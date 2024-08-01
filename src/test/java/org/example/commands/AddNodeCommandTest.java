@@ -3,29 +3,34 @@ package org.example.commands;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
 import java.util.Map;
 import org.example.exceptions.InvalidArgument;
 import org.example.model.Node;
+import org.example.services.ConsoleInputServiceInterface;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 class AddNodeCommandTest {
 
   private Map<String, Node> nodeDependencies;
   private AddNodeCommand addNodeCommand;
+  private ConsoleInputServiceInterface consoleInputService;
 
   @BeforeEach
   void setUp() {
     nodeDependencies = new HashMap<>();
-    addNodeCommand = new AddNodeCommand();
+    consoleInputService = Mockito.mock(ConsoleInputServiceInterface.class);
+    addNodeCommand = new AddNodeCommand(consoleInputService);
   }
 
   @Test
   void execute_addsNodeSuccessfully() {
     // Simulate user input
-    System.setIn(new java.io.ByteArrayInputStream("newNodeId\n".getBytes()));
+    when(consoleInputService.inputNodeId()).thenReturn("newNodeId");
 
     addNodeCommand.execute(nodeDependencies);
 
@@ -41,7 +46,7 @@ class AddNodeCommandTest {
     nodeDependencies.put("existingNodeId", existingNode);
 
     // Simulate user input
-    System.setIn(new java.io.ByteArrayInputStream("existingNodeId\n".getBytes()));
+    when(consoleInputService.inputNodeId()).thenReturn("existingNodeId");
 
     assertThrows(InvalidArgument.class, () ->
         addNodeCommand.execute(nodeDependencies));
@@ -50,7 +55,7 @@ class AddNodeCommandTest {
   @Test
   void execute_handlesNullInput() {
     // Simulate user input with null (empty string)
-    System.setIn(new java.io.ByteArrayInputStream("\n".getBytes()));
+    when(consoleInputService.inputNodeId()).thenReturn("");
 
     assertThrows(InvalidArgument.class, () -> {
       addNodeCommand.execute(nodeDependencies);

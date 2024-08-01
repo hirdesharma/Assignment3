@@ -7,13 +7,13 @@ import java.util.Map;
 public class Node {
   private String nodeId;
   private String nodeName;
-  private Map<String, String> additionalInfo;
+  final private Map<String, String> additionalInfo;
 
   private ArrayList<String> nodeParents;
 
   private ArrayList<String> nodeChildren;
 
-  public void setNodeId(String nodeId) {
+  public void setNodeId(final String nodeId) {
     this.nodeId = nodeId;
   }
 
@@ -21,7 +21,7 @@ public class Node {
     return nodeId;
   }
 
-  public void setNodeName(String nodeName) {
+  public void setNodeName(final String nodeName) {
     this.nodeName = nodeName;
   }
 
@@ -29,11 +29,11 @@ public class Node {
     return nodeName;
   }
 
-  public void addInfo(String key, String value) {
+  public void addInfo(final String key, final String value) {
     additionalInfo.put(key, value);
   }
 
-  public String getInfo(String key) {
+  public String getInfo(final String key) {
     return additionalInfo.get(key);
   }
 

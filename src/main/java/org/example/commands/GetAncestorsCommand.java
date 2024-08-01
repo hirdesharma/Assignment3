@@ -2,44 +2,61 @@ package org.example.commands;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Scanner;
 import org.example.model.Node;
+import org.example.services.ConsoleInputServiceInterface;
 
 public class GetAncestorsCommand implements CommandInterface {
+  ConsoleInputServiceInterface consoleInputService;
+
+  public GetAncestorsCommand(ConsoleInputServiceInterface consoleInputService) {
+    this.consoleInputService = consoleInputService;
+  }
 
   @Override
   public void execute(Map<String, Node> nodeDependencies) {
     Scanner scanner = new Scanner(System.in);
-    System.out.println("Enter the nodeId whose Ancestors nodes are needed");
+    System.out.println("Enter the nodeId whose Ancestor nodes are needed");
+    String nodeId = consoleInputService.inputNodeId();
 
-    String nodeId = scanner.nextLine();
-    System.out.println("The Ancestor nodes for " + nodeId + " are");
+    validateNodeId(nodeId);
+    List<String> ancestors = findAncestors(nodeDependencies, nodeId);
+    printAncestors(ancestors);
+  }
 
-    // Initialize a queue to perform breadth-first search (BFS) and a list to store ancestor nodes
+  private void validateNodeId(String nodeId) {
+    if (nodeId == null || nodeId.isEmpty()) {
+      throw new IllegalArgumentException("nodeId shouldn't be null or empty");
+    }
+  }
+
+  private List<String> findAncestors(Map<String, Node> nodeDependencies, String nodeId) {
     Queue<String> nodes = new LinkedList<>();
-    ArrayList<String> ancestors = new ArrayList<>();
+    List<String> ancestors = new ArrayList<>();
 
     nodes.add(nodeId);
 
-    // Perform BFS to find all ancestor nodes
-    while (nodes.peek() != null) {
-      String currentNode = nodes.poll(); // Get the next node from the queue
-      ancestors.add(currentNode); // Add the current node to the list of ancestors
+    while (!nodes.isEmpty()) {
+      String currentNode = nodes.poll();
+      ancestors.add(currentNode);
 
-      // Get the list of parent nodes for the current node
-      ArrayList<String> currNodeParents = nodeDependencies.get(currentNode).getNodeParents();
+      List<String> currNodeParents = nodeDependencies.get(currentNode).getNodeParents();
 
-      // Add all parent nodes to the queue to continue the BFS
-      for (int i = 1; i < currNodeParents.size(); ++i) {
-        nodes.add(currNodeParents.get(i));
+      for (String parent : currNodeParents) {
+        nodes.add(parent);
       }
     }
 
-    // Print all ancestor nodes
-    for (int i = 0; i < ancestors.size(); ++i) {
-      System.out.print(ancestors.get(i) + " ");
+    return ancestors;
+  }
+
+  private void printAncestors(List<String> ancestors) {
+    System.out.println("The Ancestor nodes are: ");
+    for (String ancestor : ancestors) {
+      System.out.print(ancestor + " ");
     }
     System.out.println();
   }
