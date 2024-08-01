@@ -1,7 +1,7 @@
 package org.example.exceptions;
 
-public class InvalidArgument extends RuntimeException {
-  public InvalidArgument(String message) {
+public final class InvalidArgument extends RuntimeException {
+  public InvalidArgument(final String message) {
     super(message);
   }
 }

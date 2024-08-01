@@ -1,20 +1,31 @@
 package org.example.commands;
 
 import java.util.Map;
-import java.util.Scanner;
 import org.example.exceptions.InvalidArgument;
 import org.example.model.Node;
+import org.example.services.ConsoleInputServiceInterface;
 
 public class AddNodeCommand implements CommandInterface {
+  private final ConsoleInputServiceInterface consoleInputService;
+
+  public AddNodeCommand(final ConsoleInputServiceInterface consoleInputService) {
+    this.consoleInputService = consoleInputService;
+  }
+
   @Override
-  public void execute(Map<String, Node> nodeDependencies) {
+  public void execute(final Map<String, Node> nodeDependencies) {
     System.out.println("Enter the node key");
-    Scanner scanner = new Scanner(System.in);
-    String newNode = scanner.nextLine();
-    if(nodeDependencies.containsKey(newNode)){
-      throw new InvalidArgument("Node with id "+newNode+" already Exist");
+    final String nodeId = consoleInputService.inputNodeId();
+
+    validateInput(nodeId, nodeDependencies);
+
+    nodeDependencies.put(nodeId, new Node());
+    nodeDependencies.get(nodeId).setNodeId(nodeId);
+  }
+
+  private void validateInput(final String nodeId, final Map<String, Node> nodeDependencies) {
+    if (nodeId == null || nodeId.isEmpty() || nodeDependencies.containsKey(nodeId)) {
+      throw new InvalidArgument("Node with id " + nodeId + " already exists or nodeId is empty");
     }
-    nodeDependencies.put(newNode,new Node());
-    nodeDependencies.get(newNode).setNodeId(newNode);
   }
 }

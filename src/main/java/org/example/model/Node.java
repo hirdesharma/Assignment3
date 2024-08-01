@@ -4,20 +4,28 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Node {
+public final class Node {
   private String nodeId;
   private String nodeName;
-  private Map<String, String> additionalInfo;
+  private final Map<String, String> additionalInfo;
+  private final ArrayList<String> nodeParents;
+  private final ArrayList<String> nodeChildren;
 
-  private ArrayList<String> nodeParents;
+  public Node() {
+    this.additionalInfo = new HashMap<>();
+    this.nodeChildren = new ArrayList<>();
+    this.nodeParents = new ArrayList<>();
+  }
 
-  private ArrayList<String> nodeChildren;
-
-  public void setNodeId(String nodeId) {
+  public void setNodeId(final String nodeId) {
     this.nodeId = nodeId;
   }
 
-  public void setNodeName(String nodeName) {
+  public String getNodeId() {
+    return nodeId;
+  }
+
+  public void setNodeName(final String nodeName) {
     this.nodeName = nodeName;
   }
 
@@ -25,11 +33,11 @@ public class Node {
     return nodeName;
   }
 
-  public void addInfo(String key, String value) {
+  public void addInfo(final String key, final String value) {
     additionalInfo.put(key, value);
   }
 
-  public String getInfo(String key) {
+  public String getInfo(final String key) {
     return additionalInfo.get(key);
   }
 
@@ -42,7 +50,8 @@ public class Node {
   }
 
   public void setNodeParents(final ArrayList<String> nodeParents) {
-    this.nodeParents = nodeParents;
+    this.nodeParents.clear();
+    this.nodeParents.addAll(nodeParents);
   }
 
   public ArrayList<String> getNodeChildren() {
@@ -50,13 +59,7 @@ public class Node {
   }
 
   public void setNodeChildren(final ArrayList<String> nodeChildren) {
-    this.nodeChildren = nodeChildren;
-  }
-
-
-  public Node() {
-    this.additionalInfo = new HashMap<>();
-    this.nodeChildren = new ArrayList<>();
-    this.nodeParents = new ArrayList<>();
+    this.nodeChildren.clear();
+    this.nodeChildren.addAll(nodeChildren);
   }
 }

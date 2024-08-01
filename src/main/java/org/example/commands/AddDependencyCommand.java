@@ -2,43 +2,64 @@ package org.example.commands;
 
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Scanner;
 import org.example.exceptions.InvalidArgument;
 import org.example.model.Node;
+import org.example.services.ConsoleInputServiceInterface;
+import org.example.validators.CyclicDependencyValidator;
 
 public class AddDependencyCommand implements CommandInterface {
+  private final CyclicDependencyValidator cyclicDependencyValidator;
+  private final ConsoleInputServiceInterface consoleInputService;
+
+  public AddDependencyCommand(final CyclicDependencyValidator cyclicDependencyValidator,
+                              final ConsoleInputServiceInterface consoleInputService) {
+    this.cyclicDependencyValidator = cyclicDependencyValidator;
+    this.consoleInputService = consoleInputService;
+  }
 
   @Override
-  public void execute(Map<String, Node> nodeDependencies) {
-    Scanner scanner = new Scanner(System.in);
-
+  public void execute(final Map<String, Node> nodeDependencies) {
     System.out.println("give the parent and child node id");
 
-    String parentId = scanner.nextLine();
-    String childId = scanner.nextLine();
+    final String parentId = consoleInputService.inputNodeId();
+    final String childId = consoleInputService.inputNodeId();
 
-    // Check if both parent and child nodes exist in the map
-    if (nodeDependencies.containsKey(parentId) && nodeDependencies.containsKey(childId)) {
+    validateParentAndChild(childId, parentId, nodeDependencies);
 
-      // Update the parent node: remove and add the child ID to ensure it's not duplicated
-      ArrayList<String> children =
-          nodeDependencies.get(parentId).getNodeChildren();
-      children.remove(childId);
-      children.add(childId);
-      nodeDependencies.get(parentId).setNodeChildren(children);
+    cyclicDependencyValidator.checkForCycle(parentId, childId, nodeDependencies);
+    updateNodeDependencies(nodeDependencies, parentId, childId);
+  }
 
-      // Update the child node: remove and add the parent ID to ensure it's not duplicated
-      ArrayList<String> parent =  nodeDependencies.get(childId).getNodeParents();
-      parent.remove(parentId);
-      parent.add(parentId);
-      nodeDependencies.get(childId).setNodeParents(parent);
-
-
-      return; // Exit the method after successful update
+  private void validateParentAndChild(final String childId, final String parentId,
+                                      final Map<String, Node> nodeDependencies) {
+    if (!nodeDependencies.containsKey(childId) || !nodeDependencies.containsKey(parentId)) {
+      throw new InvalidArgument(
+          "There is no node with parentId " + parentId + " or " + "childId " + childId);
     }
+  }
 
-    // If either parent or child node does not exist, throw an InvalidArgument exception
-    throw new InvalidArgument("There is no node with parentId " + parentId +
-        " or " + "childId " + childId);
+  private void updateNodeDependencies(final Map<String, Node> nodeDependencies,
+                                      final String parentId,
+                                      final String childId) {
+    updateParentNode(nodeDependencies, parentId, childId);
+    updateChildNode(nodeDependencies, parentId, childId);
+  }
+
+  private void updateParentNode(final Map<String, Node> nodeDependencies, final String parentId,
+                                final String childId) {
+    final ArrayList<String> children = nodeDependencies.get(parentId).getNodeChildren();
+    if (!children.contains(childId)) {
+      children.add(childId);
+    }
+    nodeDependencies.get(parentId).setNodeChildren(children);
+  }
+
+  private void updateChildNode(final Map<String, Node> nodeDependencies, final String parentId,
+                               final String childId) {
+    final ArrayList<String> parents = nodeDependencies.get(childId).getNodeParents();
+    if (!parents.contains(parentId)) {
+      parents.add(parentId);
+    }
+    nodeDependencies.get(childId).setNodeParents(parents);
   }
 }
