@@ -1,13 +1,12 @@
 package org.example.commands;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
-import net.bytebuddy.implementation.bind.annotation.IgnoreForBinding;
-import org.example.exceptions.InvalidArgument;
 import org.example.model.Node;
 import org.example.services.ConsoleInputServiceInterface;
 import org.example.validators.CyclicDependencyValidator;
@@ -18,18 +17,18 @@ import org.mockito.Mockito;
 class AddDependencyCommandTest {
 
   private Map<String, Node> nodeDependencies;
-  private CommandInterface addDependencyCommand;
+  private AddDependencyCommand addDependencyCommand;
   private CyclicDependencyValidator cyclicDependencyValidator;
   private ConsoleInputServiceInterface consoleInputService;
+  private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
 
   @BeforeEach
   void setUp() {
     nodeDependencies = new HashMap<>();
     cyclicDependencyValidator = new CyclicDependencyValidator();
     consoleInputService = Mockito.mock(ConsoleInputServiceInterface.class);
-    addDependencyCommand = new AddDependencyCommand(cyclicDependencyValidator, consoleInputService);
+    addDependencyCommand = new AddDependencyCommand(consoleInputService);
 
-    // Setting up test data
     Node parentNode = new Node();
     parentNode.setNodeId("parent");
 
@@ -38,13 +37,13 @@ class AddDependencyCommandTest {
 
     nodeDependencies.put("parent", parentNode);
     nodeDependencies.put("child", childNode);
+
+    System.setOut(new PrintStream(outputStreamCaptor));
   }
 
-  @IgnoreForBinding
+  @Test
   void execute_addDependencySuccessfully() {
-    Mockito.when(consoleInputService.inputNodeId())
-        .thenReturn("parent")
-        .thenReturn("child");
+    Mockito.when(consoleInputService.inputNodeId()).thenReturn("parent", "child");
 
     addDependencyCommand.execute(nodeDependencies);
 
@@ -53,23 +52,39 @@ class AddDependencyCommandTest {
   }
 
   @Test
-  void execute_throwsExceptionWhenParentNotFound() {
+  void testPrintWhenParentNotFound() {
     Mockito.when(consoleInputService.inputNodeId()).thenReturn("nonexistent", "child");
 
-    assertThrows(InvalidArgument.class, () ->
-        addDependencyCommand.execute(nodeDependencies)
-    );
+    addDependencyCommand.execute(nodeDependencies);
+
+    String expectedOutput = "give the parent and child node id\nThere is no node with parentId "
+        + "nonexistent or childId child";
+    String actualOutput = outputStreamCaptor.toString().trim();
+
+    expectedOutput = expectedOutput.replace("\r\n", "\n").replace("\r", "\n");
+    actualOutput = actualOutput.replace("\r\n", "\n").replace("\r", "\n");
+
+    assertEquals(expectedOutput, actualOutput);
   }
 
   @Test
-  void execute_throwsExceptionWhenChildNotFound() {
+  void testPrintWhenChildNotFound() {
     Mockito.when(consoleInputService.inputNodeId()).thenReturn("parent", "nonexistent");
 
-    assertThrows(InvalidArgument.class, () ->
-        addDependencyCommand.execute(nodeDependencies));
+    addDependencyCommand.execute(nodeDependencies);
+
+    String expectedOutput = "give the parent and child node id\nThere is no node with parentId "
+        + "parent or childId nonexistent";
+    String actualOutput = outputStreamCaptor.toString().trim();
+
+    expectedOutput = expectedOutput.replace("\r\n", "\n").replace("\r", "\n");
+    actualOutput = actualOutput.replace("\r\n", "\n").replace("\r", "\n");
+
+
+    assertEquals(expectedOutput, actualOutput);
   }
 
-  @IgnoreForBinding
+  @Test
   void execute_handlesDuplicateDependencies() {
     Mockito.when(consoleInputService.inputNodeId()).thenReturn("parent", "child");
 

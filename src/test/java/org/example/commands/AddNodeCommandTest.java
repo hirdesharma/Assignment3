@@ -1,13 +1,12 @@
 package org.example.commands;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
-import org.example.exceptions.InvalidArgument;
 import org.example.model.Node;
 import org.example.services.ConsoleInputServiceInterface;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,46 +18,64 @@ class AddNodeCommandTest {
   private Map<String, Node> nodeDependencies;
   private AddNodeCommand addNodeCommand;
   private ConsoleInputServiceInterface consoleInputService;
+  private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
 
   @BeforeEach
   void setUp() {
     nodeDependencies = new HashMap<>();
     consoleInputService = Mockito.mock(ConsoleInputServiceInterface.class);
     addNodeCommand = new AddNodeCommand(consoleInputService);
+
+    // Setup output capturing
+    System.setOut(new PrintStream(outputStreamCaptor));
   }
 
   @Test
-  void execute_addsNodeSuccessfully() {
+  void testAddNodeSuccessfully() {
     // Simulate user input
-    when(consoleInputService.inputNodeId()).thenReturn("newNodeId");
-
+    String newNodeId = "NodeId";
+    Mockito.when(consoleInputService.inputNodeId()).thenReturn(newNodeId);
     addNodeCommand.execute(nodeDependencies);
 
-    assertTrue(nodeDependencies.containsKey("newNodeId"));
-    assertEquals("newNodeId", nodeDependencies.get("newNodeId").getNodeId());
+    assertTrue(nodeDependencies.containsKey(newNodeId));
+    assertEquals(newNodeId, nodeDependencies.get(newNodeId).getNodeId());
   }
 
   @Test
-  void execute_throwsExceptionWhenNodeAlreadyExists() {
+  void testPrintWhenNodeAlreadyExists() {
     // Set up existing node
     Node existingNode = new Node();
     existingNode.setNodeId("existingNodeId");
     nodeDependencies.put("existingNodeId", existingNode);
 
     // Simulate user input
-    when(consoleInputService.inputNodeId()).thenReturn("existingNodeId");
+    Mockito.when(consoleInputService.inputNodeId()).thenReturn("existingNodeId");
 
-    assertThrows(InvalidArgument.class, () ->
-        addNodeCommand.execute(nodeDependencies));
+    addNodeCommand.execute(nodeDependencies);
+
+    String expectedOutput = "Enter the node key\nNode with id existingNodeId already Exist or "
+        + "nodeId is empty";
+    String actualOutput = outputStreamCaptor.toString().trim();
+
+    expectedOutput = expectedOutput.replace("\r\n", "\n").replace("\r", "\n");
+    actualOutput = actualOutput.replace("\r\n", "\n").replace("\r", "\n");
+
+    assertEquals(expectedOutput, actualOutput);
   }
 
   @Test
-  void execute_handlesNullInput() {
-    // Simulate user input with null (empty string)
-    when(consoleInputService.inputNodeId()).thenReturn("");
+  void testPrintWhenNodeIdIsEmpty() {
+    // Simulate user input with empty string
+    Mockito.when(consoleInputService.inputNodeId()).thenReturn("");
 
-    assertThrows(InvalidArgument.class, () -> {
-      addNodeCommand.execute(nodeDependencies);
-    });
+    addNodeCommand.execute(nodeDependencies);
+
+    String expectedOutput = "Enter the node key\nNode with id  already Exist or nodeId is empty";
+    String actualOutput = outputStreamCaptor.toString().trim();
+
+    expectedOutput = expectedOutput.replace("\r\n", "\n").replace("\r", "\n");
+    actualOutput = actualOutput.replace("\r\n", "\n").replace("\r", "\n");
+
+    assertEquals(expectedOutput, actualOutput);
   }
 }

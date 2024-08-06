@@ -2,12 +2,11 @@ package org.example.commands;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
-import org.example.exceptions.InvalidArgument;
 import org.example.model.Node;
 import org.example.services.ConsoleInputServiceInterface;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,20 +18,21 @@ class DeleteDependencyCommandTest {
   private Map<String, Node> nodeDependencies;
   private DeleteDependencyCommand deleteDependencyCommand;
   private ConsoleInputServiceInterface consoleInputService;
+  private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
 
   @BeforeEach
   void setUp() {
     nodeDependencies = new HashMap<>();
     consoleInputService = Mockito.mock(ConsoleInputServiceInterface.class);
     deleteDependencyCommand = new DeleteDependencyCommand(consoleInputService);
+    System.setOut(new PrintStream(outputStreamCaptor));
   }
 
   @Test
-  void execute_removesDependencySuccessfully() {
-    // Set up nodes with a parent-child relationship
+  void testRemovesDependencySuccessfully() {
     Node parentNode = new Node();
-    Node childNode = new Node();
     parentNode.setNodeId("parentId");
+    Node childNode = new Node();
     childNode.setNodeId("childId");
 
     parentNode.getNodeChildren().add("childId");
@@ -41,8 +41,7 @@ class DeleteDependencyCommandTest {
     nodeDependencies.put("parentId", parentNode);
     nodeDependencies.put("childId", childNode);
 
-    // Simulate user input
-    when(consoleInputService.inputNodeId()).thenReturn("parentId", "childId");
+    Mockito.when(consoleInputService.inputNodeId()).thenReturn("parentId", "childId");
 
     deleteDependencyCommand.execute(nodeDependencies);
 
@@ -51,30 +50,40 @@ class DeleteDependencyCommandTest {
   }
 
   @Test
-  void execute_throwsExceptionWhenNodeDoesNotExist() {
-    // Set up nodes
+  void testThrowsExceptionWhenNodeDoesNotExist() {
     Node existingNode = new Node();
     existingNode.setNodeId("existingNodeId");
     nodeDependencies.put("existingNodeId", existingNode);
 
-    // Simulate user input with a non-existent node
-    when(consoleInputService.inputNodeId()).thenReturn("existingNodeId", "nonExistentNodeId");
+    Mockito.when(consoleInputService.inputNodeId()).thenReturn("existingNodeId",
+        "nonExistentNodeId");
 
-    InvalidArgument exception = assertThrows(InvalidArgument.class, () -> {
-      deleteDependencyCommand.execute(nodeDependencies);
-    });
+    deleteDependencyCommand.execute(nodeDependencies);
 
-    assertEquals("There is no node with parentId existingNodeId or childId nonExistentNodeId",
-        exception.getMessage());
+    String expectedOutput = "Get parent id and child id\nThere is no node with parentId "
+        + "existingNodeId or childId nonExistentNodeId";
+    String actualOutput = outputStreamCaptor.toString().trim();
+
+    expectedOutput = expectedOutput.replace("\r\n", "\n").replace("\r", "\n");
+    actualOutput = actualOutput.replace("\r\n", "\n").replace("\r", "\n");
+
+    assertEquals(expectedOutput, actualOutput);
   }
 
   @Test
-  void execute_handlesNullInput() {
-    // Simulate user input with null (empty strings)
-    when(consoleInputService.inputNodeId()).thenReturn("", "");
+  void testHandlesNullInput() {
+    Mockito.when(consoleInputService.inputNodeId()).thenReturn("", "");
 
-    assertThrows(InvalidArgument.class, () -> {
-      deleteDependencyCommand.execute(nodeDependencies);
-    });
+    deleteDependencyCommand.execute(nodeDependencies);
+
+    String expectedOutput
+        = "Get parent id and child id\nInvalid input: Both parentId and childId must be non-null "
+        + "and non-empty.";
+    String actualOutput = outputStreamCaptor.toString().trim();
+
+    expectedOutput = expectedOutput.replace("\r\n", "\n").replace("\r", "\n");
+    actualOutput = actualOutput.replace("\r\n", "\n").replace("\r", "\n");
+
+    assertEquals(expectedOutput, actualOutput);
   }
 }

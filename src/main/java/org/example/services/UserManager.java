@@ -17,22 +17,22 @@ import org.example.model.Node;
 import org.example.validators.CyclicDependencyValidator;
 
 public class UserManager {
-  CyclicDependencyValidator cyclicDependencyValidator;
-  ConsoleInputServiceInterface consoleInputService;
+  final CyclicDependencyValidator cyclicDependencyValidator;
+  final ConsoleInputServiceInterface consoleInputService;
+  final UserInputServiceInterface userInputService;
   final Map<Integer, CommandInterface> commandMap;
   final Map<String, Node> nodeDependencies;
 
-  UserInputServiceInterface userInputService;
 
-  public UserManager(UserInputServiceInterface userInputService,
-                     CyclicDependencyValidator cyclicDependencyValidator,
-                     ConsoleInputServiceInterface consoleInputService) {
+  public UserManager(final UserInputServiceInterface userInputService,
+                     final CyclicDependencyValidator cyclicDependencyValidator,
+                     final ConsoleInputServiceInterface consoleInputService) {
     nodeDependencies = new HashMap<>();
     commandMap = new HashMap<>();
     this.cyclicDependencyValidator = cyclicDependencyValidator;
     this.userInputService = userInputService;
     this.consoleInputService = consoleInputService;
-    commandMap.put(1, new AddDependencyCommand(cyclicDependencyValidator, consoleInputService));
+    commandMap.put(1, new AddDependencyCommand(consoleInputService));
     commandMap.put(2, new AddNodeCommand(consoleInputService));
     commandMap.put(3, new DeleteDependencyCommand(consoleInputService));
     commandMap.put(4, new DeleteNodeCommand(consoleInputService));
@@ -42,12 +42,12 @@ public class UserManager {
     commandMap.put(8, new GetParentsCommand(consoleInputService));
   }
 
-  public void startManager() {
+  public final void startManager() {
     final boolean terminate = false;
     while (!terminate) {
       try {
         final int userChoice = userInputService.getUserInput();
-        CommandInterface commandInterface = commandMap.get(userChoice);
+        final CommandInterface commandInterface = commandMap.get(userChoice);
         if (Objects.isNull(commandInterface)) {
           System.out.println("Choice should be a valid integer between 1 and 8");
         } else {

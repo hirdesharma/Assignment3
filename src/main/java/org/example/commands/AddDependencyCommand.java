@@ -4,15 +4,14 @@ import java.util.ArrayList;
 import java.util.Map;
 import org.example.model.Node;
 import org.example.services.ConsoleInputServiceInterface;
+import org.example.utility.ValidationUtils;
 import org.example.validators.CyclicDependencyValidator;
 
 public class AddDependencyCommand implements CommandInterface {
-  private final CyclicDependencyValidator cyclicDependencyValidator;
   private final ConsoleInputServiceInterface consoleInputService;
 
-  public AddDependencyCommand(CyclicDependencyValidator cyclicDependencyValidator,
-                              ConsoleInputServiceInterface consoleInputService) {
-    this.cyclicDependencyValidator = cyclicDependencyValidator;
+  public AddDependencyCommand(
+      ConsoleInputServiceInterface consoleInputService) {
     this.consoleInputService = consoleInputService;
   }
 
@@ -22,21 +21,11 @@ public class AddDependencyCommand implements CommandInterface {
     String parentId = consoleInputService.inputNodeId();
     String childId = consoleInputService.inputNodeId();
 
-    if (validateParentAndChild(childId, parentId, nodeDependencies)
-        || cyclicDependencyValidator.checkForCycle(parentId, childId, nodeDependencies)) {
+    if (ValidationUtils.validateParentAndChild(childId, parentId, nodeDependencies)
+        || CyclicDependencyValidator.checkForCycle(parentId, childId, nodeDependencies)) {
       return;
     }
     updateNodeDependencies(nodeDependencies, parentId, childId);
-  }
-
-  private boolean validateParentAndChild(final String childId, final String parentId,
-                                         final Map<String, Node> nodeDependencies) {
-    if (!nodeDependencies.containsKey(childId) || !nodeDependencies.containsKey(parentId)) {
-      System.out.println(
-          "There is no node with parentId " + parentId + " or " + "childId " + childId);
-      return true;
-    }
-    return false;
   }
 
   private void updateNodeDependencies(final Map<String, Node> nodeDependencies,
