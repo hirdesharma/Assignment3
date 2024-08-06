@@ -2,12 +2,13 @@ package org.example.commands;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
-import org.example.exceptions.InvalidArgument;
 import org.example.model.Node;
 import org.example.services.ConsoleInputServiceInterface;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,12 +20,14 @@ class DeleteNodeCommandTest {
   private Map<String, Node> nodeDependencies;
   private DeleteNodeCommand deleteNodeCommand;
   private ConsoleInputServiceInterface consoleInputService;
+  private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
 
   @BeforeEach
   void setUp() {
     nodeDependencies = new HashMap<>();
-    consoleInputService = Mockito.mock(ConsoleInputServiceInterface.class);
+    consoleInputService = mock(ConsoleInputServiceInterface.class);
     deleteNodeCommand = new DeleteNodeCommand(consoleInputService);
+    System.setOut(new PrintStream(outputStreamCaptor));
   }
 
   @Test
@@ -61,31 +64,32 @@ class DeleteNodeCommandTest {
   }
 
   @Test
-  void testThrowsExceptionWhenNodeDoesNotExist() {
-    // Add a node to the map
-    Node existingNode = new Node();
-    existingNode.setNodeId("existingNodeId");
-    nodeDependencies.put("existingNodeId", existingNode);
-
-    // Simulate user input with a non-existent node
+  public void testHandlesNodeNotExist() {
     when(consoleInputService.inputNodeId()).thenReturn("nonExistentNodeId");
+    deleteNodeCommand.execute(nodeDependencies);
 
-    InvalidArgument exception = assertThrows(InvalidArgument.class, () -> {
-      deleteNodeCommand.execute(nodeDependencies);
-    });
+    String actualOutput = outputStreamCaptor.toString().trim();
+    // Assert
+    String expectedOutput = "Enter the node id you want to delete with all its dependencies\n" +
+        "There is no node with id: nonExistentNodeId";
+    expectedOutput = expectedOutput.replace("\r\n", "\n").replace("\r", "\n");
+    actualOutput = actualOutput.replace("\r\n", "\n").replace("\r", "\n");
 
-    assertEquals("There is no node with id nonExistentNodeId", exception.getMessage());
+    assertEquals(expectedOutput, actualOutput);
   }
 
   @Test
-  void testHandlesNullNodeId() {
-    // Simulate user input with a null (empty string)
-    when(consoleInputService.inputNodeId()).thenReturn("null");
+  public void testHandlesNullNodeId() {
+    when(consoleInputService.inputNodeId()).thenReturn(null);
 
-    InvalidArgument exception = assertThrows(InvalidArgument.class, () -> {
-      deleteNodeCommand.execute(nodeDependencies);
-    });
+    deleteNodeCommand.execute(nodeDependencies);
 
-    assertEquals("There is no node with id null", exception.getMessage());
+    String actualOutput = outputStreamCaptor.toString().trim();
+    // Assert
+    String expectedOutput = "Enter the node id you want to delete with all its dependencies\n" +
+        "There is no node with id: null";
+    expectedOutput = expectedOutput.replace("\r\n", "\n").replace("\r", "\n");
+    actualOutput = actualOutput.replace("\r\n", "\n").replace("\r", "\n");
+    assertEquals(expectedOutput, actualOutput);
   }
 }

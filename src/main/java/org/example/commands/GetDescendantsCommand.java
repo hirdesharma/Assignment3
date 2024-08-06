@@ -7,53 +7,46 @@ import java.util.Map;
 import java.util.Queue;
 import org.example.model.Node;
 import org.example.services.ConsoleInputServiceInterface;
+import org.example.utility.ValidationUtils;
 
 public class GetDescendantsCommand implements CommandInterface {
-  ConsoleInputServiceInterface consoleInputService;
+  final ConsoleInputServiceInterface consoleInputService;
 
   public GetDescendantsCommand(ConsoleInputServiceInterface consoleInputService) {
     this.consoleInputService = consoleInputService;
   }
 
   @Override
-  public void execute(final Map<String, Node> nodeDependencies) {
+  public final void execute(final Map<String, Node> nodeDependencies) {
     System.out.println("Enter the nodeId whose Descendants nodes are needed");
-    String nodeId = consoleInputService.inputNodeId();
+    final String nodeId = consoleInputService.inputNodeId();
 
-    if (validateNodeId(nodeId)) {
+    if (ValidationUtils.validateNodeId(nodeId, nodeDependencies)) {
       return;
     }
-    List<String> descendants = findDescendants(nodeDependencies, nodeId);
+    final List<String> descendants = findDescendants(nodeDependencies, nodeId);
     printDescendants(nodeId, descendants);
-  }
-
-  private boolean validateNodeId(final String nodeId) {
-    if (nodeId == null || nodeId.isEmpty()) {
-      System.out.println("nodeId shouldn't be null or empty");
-      return true;
-    }
-    return false;
   }
 
   private List<String> findDescendants(final Map<String, Node> nodeDependencies,
                                        final String nodeId) {
-    Queue<String> nodes = new LinkedList<>();
-    List<String> descendants = new ArrayList<>();
+    final Queue<String> nodes = new LinkedList<>();
+    final List<String> descendants = new ArrayList<>();
 
     nodes.add(nodeId);
 
     while (!nodes.isEmpty()) {
-      String currentNode = nodes.poll();
+      final String currentNode = nodes.poll();
       descendants.add(currentNode);
 
-      List<String> currNodeChildren = nodeDependencies.get(currentNode).getNodeChildren();
+      final List<String> currNodeChildren = nodeDependencies.get(currentNode).getNodeChildren();
       nodes.addAll(currNodeChildren);
     }
 
     return descendants;
   }
 
-  private void printDescendants(final String nodeId, List<String> descendants) {
+  private void printDescendants(final String nodeId, final List<String> descendants) {
     System.out.println("The Descendant nodes for " + nodeId + " are:");
     for (int i = 1; i < descendants.size(); ++i) { // Start from 1 to skip the original node
       System.out.print(descendants.get(i) + " ");

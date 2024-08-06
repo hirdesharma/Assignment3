@@ -27,7 +27,7 @@ class AddDependencyCommandTest {
     nodeDependencies = new HashMap<>();
     cyclicDependencyValidator = new CyclicDependencyValidator();
     consoleInputService = Mockito.mock(ConsoleInputServiceInterface.class);
-    addDependencyCommand = new AddDependencyCommand(cyclicDependencyValidator, consoleInputService);
+    addDependencyCommand = new AddDependencyCommand(consoleInputService);
 
     Node parentNode = new Node();
     parentNode.setNodeId("parent");

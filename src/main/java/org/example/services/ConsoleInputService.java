@@ -5,12 +5,12 @@ import java.util.Scanner;
 public class ConsoleInputService implements ConsoleInputServiceInterface {
   Scanner scanner;
 
-  public ConsoleInputService(Scanner scanner) {
+  public ConsoleInputService(final Scanner scanner) {
     this.scanner = scanner;
   }
 
   @Override
-  public String inputNodeId() {
+  public final String inputNodeId() {
     final String nodeId = scanner.nextLine();
     return nodeId;
   }

@@ -3,10 +3,10 @@ package org.example.services;
 import java.util.Scanner;
 
 public class UserInputService implements UserInputServiceInterface {
-  ConsoleInputServiceInterface consoleInputService;
-  Scanner scanner;
+  final ConsoleInputServiceInterface consoleInputService;
+  final Scanner scanner;
 
-  public UserInputService(ConsoleInputServiceInterface consoleInputService) {
+  public UserInputService(final ConsoleInputServiceInterface consoleInputService) {
     this.consoleInputService = consoleInputService;
     scanner = new Scanner(System.in);
   }

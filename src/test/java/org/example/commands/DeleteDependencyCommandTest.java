@@ -76,7 +76,9 @@ class DeleteDependencyCommandTest {
 
     deleteDependencyCommand.execute(nodeDependencies);
 
-    String expectedOutput = "Get parent id and child id\nEmpty inputs are not allowed";
+    String expectedOutput
+        = "Get parent id and child id\nInvalid input: Both parentId and childId must be non-null "
+        + "and non-empty.";
     String actualOutput = outputStreamCaptor.toString().trim();
 
     expectedOutput = expectedOutput.replace("\r\n", "\n").replace("\r", "\n");

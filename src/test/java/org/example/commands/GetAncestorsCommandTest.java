@@ -63,7 +63,7 @@ class GetAncestorsCommandTest {
 
     String actualOutput = outputStream.toString().trim();
     String expectedOutput = "Enter the nodeId whose Ancestor nodes are needed\n" +
-        "there is no node with id : null";
+        "There is no node with id: null";
     expectedOutput = expectedOutput.replace("\r\n", "\n").replace("\r", "\n");
     actualOutput = actualOutput.replace("\r\n", "\n").replace("\r", "\n");
 
